@@ -26,7 +26,7 @@ For this portfolio, I designed and executed a comprehensive QA strategy for a fu
 
 ### 📝 1. Manual Testing Artifacts
 * **[Test Plan (Markdown)](./documentation/Test_Plan.md):** Outlines the scope, environmental requirements, risk-based testing focus, and pass/fail criteria.
-* **[Test Case Matrix](./test-cases/Test_Cases.csv):** Over 30 written test cases spanning authentication, input boundaries, and responsive UI layout parity against design mockups.
+* **[Test Case Matrix](./test-suites/CARE-SPHERE-UPDATED-07.xlsx):** Over 250 written test cases spanning authentication, input boundaries, and responsive UI layout parity against design mockups.
 
 ### 🤖 2. Automation Suite
 Using **Playwright**, I automated the application's core regression path to run on multiple browser engines (Chromium, Firefox, WebKit):
@@ -36,7 +36,7 @@ Using **Playwright**, I automated the application's core regression path to run 
 ---
 
 ## 🐛 Sample Bug Report
-*To view the complete active bug log, visit [Bug_Reports.md](./documentation/Bug_Reports.md).*
+*To view the complete active bug log, visit [Bug_Reports.md](./bug-reports/).*
 
 ### **BUG-001: Profile Picture Upload Fails silently on PNG files > 5MB**
 * **Severity:** Medium
