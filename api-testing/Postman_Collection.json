@@ -1,0 +1,156 @@
+{
+  "info": {
+    "_postman_id": "c8a3f912-98e2-4110-a234-91b427dfa120",
+    "name": "Care Sphere - API Systems Assurance Suite",
+    "description": "Comprehensive Postman API test collection validating Patient Registry and Beneficiary Registry integration endpoints, beneficiary creation, and eligibility status synchronization.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Registration & Auth",
+      "item": [
+        {
+          "name": "Verify Unonboarded ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('ID is marked eligible for registration', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.registered).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_type\": 1,\n  \"id_number\": \"{{test_id_number}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - CR/BMS Integration APIs",
+      "item": [
+        {
+          "name": "Fetch Principal Member (Expect 404 for New User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404 Not Found for clean test user', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message correctly identifies missing record', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('Member not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bms/fetch-principal-member/3/{{test_id_number}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "bms", "fetch-principal-member", "3", "{{test_id_number}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Principal Member in BMS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 Created/OK', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test('Response payload returns valid BMS member reference', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('bms_member_id');",
+                  "    pm.environment.set('bms_member_id', jsonData.bms_member_id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_type\": 1,\n  \"id_number\": \"{{test_id_number}}\",\n  \"first_name\": \"Christian\",\n  \"last_name\": \"Gray\",\n  \"phone_number\": \"+254700000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/bms/create-principal-member",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "bms", "create-principal-member"]
+            }
+          }
+        },
+        {
+          "name": "Generate Immediate Eligibility Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Eligibility token generated successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.eligibility_status).to.eql('ELIGIBLE');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bms_member_id\": \"{{bms_member_id}}\",\n  \"coverage_type\": \"SHIF\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/eligibility/generate-beneficiary-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "eligibility", "generate-beneficiary-token"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
